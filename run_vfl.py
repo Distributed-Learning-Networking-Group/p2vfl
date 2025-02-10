@@ -572,7 +572,7 @@ def run_ps(args):
                     print('unselected_count_list:',unselected_count_list)
 
                 if global_step >= args.warm_up_phase and global_step < 100:
-                    args.validation_period = 100
+                    args.validation_period = 50
                 if global_step >= 100:
                     args.validation_period = (int) (args.validation_alpha * math.pow(global_step, 0.5))
                     # print("args.validation_period:", args.validation_period)
@@ -755,7 +755,7 @@ def run_client(args):
 
     ###############
     last_theta = None
-    wnd_size = 2
+    wnd_size = train_batches / 2 
     avg_distance = 0
     freeze = False
     freezing_period = wnd_size /2
@@ -914,7 +914,7 @@ def run_client(args):
                                         freezing_period -= 1
                                         # print('freezing_period:',freezing_period)
                         last_theta = current_theta.clone()
-                    '''
+                    
                     else:
                         freezing_count += 1
                         if freezing_count >= freezing_period:
@@ -922,7 +922,7 @@ def run_client(args):
                             freezing_count = 0
                             freezing_period += wnd_size/2
                             send_data([torch.tensor(1 if freeze else 0,dtype=torch.float32)],0,tag=2)
-                    '''
+                    
                 ###################
                     
                 if args.use_reweight and global_step >= args.validation_period + last_validation_step:
@@ -932,7 +932,7 @@ def run_client(args):
                     time_queue.put(torch.tensor(ts,dtype=torch.float32))
                     # staleness_queue.put(torch.tensor(waiting_grad_num+1, dtype=torch.float32))
                     if global_step >= args.warm_up_phase and global_step < 100:
-                        args.validation_period = 100
+                        args.validation_period = 50
                     if global_step >= 100:
                         args.validation_period = (int) (args.validation_alpha * math.pow(global_step, 0.5))
                     last_validation_step = global_step
